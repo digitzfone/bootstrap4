@@ -1,8 +1,3 @@
-"format global";
-"deps jquery";
-"exports $";
-
-
 /*!
  * Bootstrap v4.0.0-alpha (http://getbootstrap.com)
  * Copyright 2011-2015 Twitter, Inc.

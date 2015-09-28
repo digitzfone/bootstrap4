@@ -1,0 +1,27 @@
+{
+  "name": "bootstrap4",
+  "version": "4.0.0.1",
+  "description": "less files for bootstrap",
+  "keywords": [
+    "bootstrap",
+    "sass"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:distros/bootstrap-less.git"
+  },
+  "bugs": {
+    "url": "https://github.com/distros/bootstrap-less/issues"
+  },
+  "main": "js/bootstrap",
+  "format": "global",
+  "shim": {
+    "js/bootstrap": ["jquery"],
+    "js/bootstrap.min": ["jquery"],
+  },
+  "jspm":{
+    "dependencies": {
+      "jquery": "github:components/jquery"
+    }
+  }
+}
