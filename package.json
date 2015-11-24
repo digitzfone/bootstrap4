@@ -16,12 +16,13 @@
   "main": "js/bootstrap",
   "format": "global",
   "shim": {
-    "js/bootstrap": ["jquery"],
-    "js/bootstrap.min": ["jquery"]
+    "js/bootstrap": ["jquery", "tether"],
+    "js/bootstrap.min": ["jquery", "tether"]
   },
   "jspm":{
     "dependencies": {
-      "jquery": "github:components/jquery"
+      "jquery": "github:components/jquery",
+      "tether":"github:hubspot/tether"
     }
   }
 }
