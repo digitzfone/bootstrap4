@@ -10,8 +10,8 @@ if (typeof jQuery === 'undefined') {
 
 +function ($) {
   var version = $.fn.jquery.split(' ')[0].split('.')
-  if ((version[0] < 2 && version[1] < 9) || (version[0] == 1 && version[1] == 9 && version[2] < 1)) {
-    throw new Error('Bootstrap\'s JavaScript requires jQuery version 1.9.1 or higher')
+  if ((version[0] < 2 && version[1] < 9) || (version[0] == 1 && version[1] == 9 && version[2] < 1) || (version[0] >= 3)) {
+    throw new Error('Bootstrap\'s JavaScript requires at least jQuery v1.9.1 but less than v3.0.0')
   }
 }(jQuery);
 
@@ -27,7 +27,7 @@ if (typeof jQuery === 'undefined') {
 
 'use strict';
 
-var _get = function get(_x, _x2, _x3) { var _again = true; _function: while (_again) { var object = _x, property = _x2, receiver = _x3; desc = parent = getter = undefined; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x = parent; _x2 = property; _x3 = receiver; _again = true; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
+var _get = function get(_x, _x2, _x3) { var _again = true; _function: while (_again) { var object = _x, property = _x2, receiver = _x3; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x = parent; _x2 = property; _x3 = receiver; _again = true; desc = parent = undefined; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
 
 var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
 
@@ -651,6 +651,14 @@ var Carousel = (function ($) {
         }
       }
     }, {
+      key: 'nextWhenVisible',
+      value: function nextWhenVisible() {
+        // Don't call next when the page isn't visible
+        if (!document.hidden) {
+          this.next();
+        }
+      }
+    }, {
       key: 'prev',
       value: function prev() {
         if (!this._isSliding) {
@@ -685,7 +693,7 @@ var Carousel = (function ($) {
         }
 
         if (this._config.interval && !this._isPaused) {
-          this._interval = setInterval($.proxy(this.next, this), this._config.interval);
+          this._interval = setInterval($.proxy(document.visibilityState ? this.nextWhenVisible : this.next, this), this._config.interval);
         }
       }
     }, {
@@ -918,7 +926,10 @@ var Carousel = (function ($) {
 
           if (typeof config === 'number') {
             data.to(config);
-          } else if (action) {
+          } else if (typeof action === 'string') {
+            if (data[action] === undefined) {
+              throw new Error('No method named "' + action + '"');
+            }
             data[action]();
           } else if (_config.interval) {
             data.pause();
@@ -1306,6 +1317,9 @@ var Collapse = (function ($) {
           }
 
           if (typeof config === 'string') {
+            if (data[config] === undefined) {
+              throw new Error('No method named "' + config + '"');
+            }
             data[config]();
           }
         });
@@ -1496,6 +1510,9 @@ var Dropdown = (function ($) {
           }
 
           if (typeof config === 'string') {
+            if (data[config] === undefined) {
+              throw new Error('No method named "' + config + '"');
+            }
             data[config].call(this);
           }
         });
@@ -1769,7 +1786,7 @@ var Modal = (function ($) {
         $(this._dialog).on(Event.MOUSEDOWN_DISMISS, function () {
           $(_this7._element).one(Event.MOUSEUP_DISMISS, function (event) {
             if ($(event.target).is(_this7._element)) {
-              that._ignoreBackdropClick = true;
+              _this7._ignoreBackdropClick = true;
             }
           });
         });
@@ -2058,7 +2075,7 @@ var Modal = (function ($) {
         this._originalBodyPadding = document.body.style.paddingRight || '';
 
         if (this._isBodyOverflowing) {
-          document.body.style.paddingRight = bodyPadding + (this._scrollbarWidth + 'px');
+          document.body.style.paddingRight = bodyPadding + this._scrollbarWidth + 'px';
         }
       }
     }, {
@@ -2093,6 +2110,9 @@ var Modal = (function ($) {
           }
 
           if (typeof config === 'string') {
+            if (data[config] === undefined) {
+              throw new Error('No method named "' + config + '"');
+            }
             data[config](relatedTarget);
           } else if (_config.show) {
             data.show(relatedTarget);
@@ -2429,6 +2449,9 @@ var ScrollSpy = (function ($) {
           }
 
           if (typeof config === 'string') {
+            if (data[config] === undefined) {
+              throw new Error('No method named "' + config + '"');
+            }
             data[config]();
           }
         });
@@ -2692,6 +2715,9 @@ var Tab = (function ($) {
           }
 
           if (typeof config === 'string') {
+            if (data[config] === undefined) {
+              throw new Error('No method named "' + config + '"');
+            }
             data[config]();
           }
         });
@@ -2727,6 +2753,8 @@ var Tab = (function ($) {
   return Tab;
 })(jQuery);
 
+/* global Tether */
+
 /**
  * --------------------------------------------------------------------------
  * Bootstrap (v4.0.0): tooltip.js
@@ -2735,6 +2763,14 @@ var Tab = (function ($) {
  */
 
 var Tooltip = (function ($) {
+
+  /**
+   * Check for Tether dependency
+   * Tether - http://github.hubspot.com/tether/
+   */
+  if (window.Tether === undefined) {
+    throw new Error('Bootstrap tooltips require Tether (http://github.hubspot.com/tether/)');
+  }
 
   /**
    * ------------------------------------------------------------------------
@@ -2766,7 +2802,7 @@ var Tooltip = (function ($) {
   var DefaultType = {
     animation: 'boolean',
     template: 'string',
-    title: '(string|function)',
+    title: '(string|element|function)',
     trigger: 'string',
     delay: '(number|object)',
     html: 'boolean',
@@ -2971,7 +3007,8 @@ var Tooltip = (function ($) {
             classes: TetherClass,
             classPrefix: CLASS_PREFIX,
             offset: this.config.offset,
-            constraints: this.config.constraints
+            constraints: this.config.constraints,
+            addTargetClasses: false
           });
 
           Util.reflow(tip);
@@ -3052,15 +3089,30 @@ var Tooltip = (function ($) {
     }, {
       key: 'setContent',
       value: function setContent() {
-        var tip = this.getTipElement();
-        var title = this.getTitle();
-        var method = this.config.html ? 'html' : 'text';
+        var $tip = $(this.getTipElement());
 
-        $(tip).find(Selector.TOOLTIP_INNER)[method](title);
+        this.setElementContent($tip.find(Selector.TOOLTIP_INNER), this.getTitle());
 
-        $(tip).removeClass(ClassName.FADE).removeClass(ClassName.IN);
+        $tip.removeClass(ClassName.FADE).removeClass(ClassName.IN);
 
         this.cleanupTether();
+      }
+    }, {
+      key: 'setElementContent',
+      value: function setElementContent($element, content) {
+        var html = this.config.html;
+        if (typeof content === 'object' && (content.nodeType || content.jquery)) {
+          // content is a DOM node or a jQuery
+          if (html) {
+            if (!$(content).parent().is($element)) {
+              $element.empty().append(content);
+            }
+          } else {
+            $element.text($(content).text());
+          }
+        } else {
+          $element[html ? 'html' : 'text'](content);
+        }
       }
     }, {
       key: 'getTitle',
@@ -3078,12 +3130,6 @@ var Tooltip = (function ($) {
       value: function cleanupTether() {
         if (this._tether) {
           this._tether.destroy();
-
-          // clean up after tether's junk classes
-          // remove after they fix issue
-          // (https://github.com/HubSpot/tether/issues/36)
-          $(this.element).removeClass(this._removeTetherClasses);
-          $(this.tip).removeClass(this._removeTetherClasses);
         }
       }
 
@@ -3120,11 +3166,6 @@ var Tooltip = (function ($) {
         } else {
           this._fixTitle();
         }
-      }
-    }, {
-      key: '_removeTetherClasses',
-      value: function _removeTetherClasses(i, css) {
-        return ((css.baseVal || css).match(new RegExp('(^|\\s)' + CLASS_PREFIX + '-\\S+', 'g')) || []).join(' ');
       }
     }, {
       key: '_fixTitle',
@@ -3268,6 +3309,9 @@ var Tooltip = (function ($) {
           }
 
           if (typeof config === 'string') {
+            if (data[config] === undefined) {
+              throw new Error('No method named "' + config + '"');
+            }
             data[config]();
           }
         });
@@ -3351,7 +3395,7 @@ var Popover = (function ($) {
   });
 
   var DefaultType = $.extend({}, Tooltip.DefaultType, {
-    content: '(string|function)'
+    content: '(string|element|function)'
   });
 
   var ClassName = {
@@ -3415,19 +3459,13 @@ var Popover = (function ($) {
     }, {
       key: 'setContent',
       value: function setContent() {
-        var tip = this.getTipElement();
-        var title = this.getTitle();
-        var content = this._getContent();
-        var $titleElement = $(tip).find(Selector.TITLE);
-
-        if ($titleElement) {
-          $titleElement[this.config.html ? 'html' : 'text'](title);
-        }
+        var $tip = $(this.getTipElement());
 
         // we use append for html objects to maintain js events
-        $(tip).find(Selector.CONTENT).children().detach().end()[this.config.html ? typeof content === 'string' ? 'html' : 'append' : 'text'](content);
+        this.setElementContent($tip.find(Selector.TITLE), this.getTitle());
+        this.setElementContent($tip.find(Selector.CONTENT), this._getContent());
 
-        $(tip).removeClass(ClassName.FADE).removeClass(ClassName.IN);
+        $tip.removeClass(ClassName.FADE).removeClass(ClassName.IN);
 
         this.cleanupTether();
       }
@@ -3459,6 +3497,9 @@ var Popover = (function ($) {
           }
 
           if (typeof config === 'string') {
+            if (data[config] === undefined) {
+              throw new Error('No method named "' + config + '"');
+            }
             data[config]();
           }
         });
