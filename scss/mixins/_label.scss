@@ -1,6 +1,6 @@
-// Tags
+// Labels
 
-@mixin tag-variant($color) {
+@mixin label-variant($color) {
   background-color: $color;
 
   &[href] {
